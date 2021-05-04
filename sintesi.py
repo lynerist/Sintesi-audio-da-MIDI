@@ -2,8 +2,8 @@ import mido
 from functions import *
 
 
-song 		= "mario"
-instrument 	= "trumpet"
+song 		= "He_is_a_pirate"
+instrument 	= "panflute"
 
 try:
 	instrument = Instrument(instrument) 
@@ -46,16 +46,17 @@ for msg in midi.allTracks:
 		if note.note in cacheAudioSamples.keys(): 
 			audioNote = cacheAudioSamples[note.note]
 		else:
-			#controllo  range  (Da rifare)
-			#Lettura campione della nota corrispondente
+			#controllo se sono fuori range  (Da sistemare)
 			if int(msg.note) < int(instrument.rangeNotes[0]) or int(msg.note) > int(instrument.rangeNotes[1]):
 				audioNote = AudioSegment.from_file(instrument.path + instrument.rangeNotes[int(msg.note) > int(instrument.rangeNotes[1])] + "." + instrument.extension)
 				audioNote = pitchChange(audioNote, (int(msg.note) - int(instrument.rangeNotes[int(msg.note) > int(instrument.rangeNotes[1])])))
-			elif "%d.%s"%(note.note, instrument.extension) in instrument.notes:
-				audioNote = AudioSegment.from_file("%s%d.%s"%(instrument.path, note.note, instrument.extension))
-			else:	# PER ORA FUNZIONA SOLO SE HO BUCHI DI AL PIù UN SEMITONO NEI CAMPIONI DISPONIBILI
-				audioNote = AudioSegment.from_file("%s%d.%s"%(instrument.path, note.note - 1, instrument.extension))
-				audioNote = pitchChange(audioNote, 1)
+			else:	
+				offset = 0
+				while not "%d.%s"%(note.note - offset, instrument.extension) in instrument.notes:
+					offset += 1
+				audioNote = AudioSegment.from_file("%s%d.%s"%(instrument.path, note.note - offset, instrument.extension))
+				audioNote = pitchChange(audioNote, offset)
+				print(offset)
 
 			cacheAudioSamples[note.note] = audioNote				
 
