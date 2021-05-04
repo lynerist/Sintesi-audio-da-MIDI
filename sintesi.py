@@ -56,7 +56,6 @@ for msg in midi.allTracks:
 					offset += 1
 				audioNote = AudioSegment.from_file("%s%d.%s"%(instrument.path, note.note - offset, instrument.extension))
 				audioNote = pitchChange(audioNote, offset)
-				print(offset)
 
 			cacheAudioSamples[note.note] = audioNote				
 
