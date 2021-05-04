@@ -1,0 +1,6 @@
+
+It took 591.85 s with try catch
+
+It took 591.65 s with if else
+
+It took 465.69 s with cacheAudioSamples
