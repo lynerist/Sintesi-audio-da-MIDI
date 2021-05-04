@@ -66,19 +66,14 @@ def adjustLength(sound:AudioSegment, durationDesired):
 		while len(middle) < toAdd:
 			middle = middle.append(toLoop, internalCrossfade)
 
-		print(min(excess/2, len(start)))
-
 		#I use the excess to crossfade the start and the end
 		excess = len(middle) - toAdd
-
-		print(min(excess/2, len(start)))
 
 		#first part + middle
 		adjusted = start.append(middle, min(excess/2, len(start)))
 		#first part + middle + end
 		adjusted = adjusted.append(end, min(excess/2, len(end)))	
 	
-
 	return adjusted
 
 
