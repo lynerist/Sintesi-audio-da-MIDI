@@ -10,7 +10,7 @@ except FileNotFoundError as e :
 	print(e)
 	exit()
 
-midi = MidiInterface(mido.MidiFile("midi/%s.mid"%song, clip=True))
+midi = MidiInterface(mido.MidiFile(f"midi/{song}.mid", clip=True))
 duration = midi.duration
 
 
@@ -77,7 +77,7 @@ for msg in midi.allTracks:
 if not os.path.exists("outputAudio"):
 	os.mkdir("outputAudio")
 
-audio.export("outputAudio/%s-%s.wav"%(song, instrument.name), "wav")
+audio.export(f"outputAudio/{song}-{instrument.name}.wav", "wav")
 
 			
 			
