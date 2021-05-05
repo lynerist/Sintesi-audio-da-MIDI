@@ -3,7 +3,7 @@ from functions import *
 
 
 song 		= "He_is_a_pirate"
-instrument 	= "panflute"
+instrument 	= "trumpet"
 
 try:
 	instrument = Instrument(instrument) 
@@ -73,9 +73,9 @@ for msg in midi.allTracks:
 		if (currentLoading) - loading > 1:
 			print("%.2f %%"%(currentLoading))
 			loading = (currentLoading)
-			#print(note, " - ", noteLength)
-		
+			
 
+			
 audio.export("outputAudio/%s-%s.wav"%(song, instrument.name), "wav")
 
 			
