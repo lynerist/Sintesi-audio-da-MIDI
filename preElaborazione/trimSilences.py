@@ -1,9 +1,17 @@
 import pydub
-from os import listdir
+import os
+from pydub import AudioSegment
+
 
 instrument = "harpsichord"
 
-instrumentPath = "instruments/"+ instrument + "/"
+instrumentPath = "instruments/%s/"%instrument
+trimmedPath = "instruments/%sTrimmed"%instrument
+
+#Se non esiste creo la directory
+if not os.path.exists(trimmedPath):
+	os.mkdir(trimmedPath)
+
 
 #leggo il range di note disponibili
 try:
@@ -11,12 +19,6 @@ try:
 except Exception as e:
 	rangeNotes = e
 	exit()
-
-
-
-from pydub import AudioSegment
-
-
 
 #"""		PER TRIMMARE TUTTE LE NOTE
 for note in range(int(rangeNotes[0]), int(rangeNotes[1])+1):
@@ -35,7 +37,7 @@ for note in range(int(rangeNotes[0]), int(rangeNotes[1])+1):
 		trimmed = audioNote[startTrim:duration-endTrim].fade_out(600)
 
 		print(trimmed.duration_seconds)
-		trimmed.export("instruments/trimmed%s/%d.wav"%(instrument, note), "wav")
+		trimmed.export("%s/%d.wav"%(trimmedPath, note), "wav")
 
 	except Exception as e:
 		print(e)
