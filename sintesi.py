@@ -1,7 +1,6 @@
 import mido
 from functions import *
 
-
 song 		= "He_is_a_pirate"
 instrument 	= "trumpet"
 
@@ -74,8 +73,10 @@ for msg in midi.allTracks:
 			print("%.2f %%"%(currentLoading))
 			loading = (currentLoading)
 			
+#Se non esiste creo la directory dove collezionare gli output
+if not os.path.exists("outputAudio"):
+	os.mkdir("outputAudio")
 
-			
 audio.export("outputAudio/%s-%s.wav"%(song, instrument.name), "wav")
 
 			

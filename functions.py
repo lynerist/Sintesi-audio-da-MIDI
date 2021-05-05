@@ -1,5 +1,5 @@
 import mido
-from os import listdir
+import os
 from pydub import AudioSegment
 
 
@@ -133,7 +133,7 @@ class Instrument:
 			rangeFile = open(self.path + "range.txt", "r")
 			self.rangeNotes = tuple(rangeFile.readline().split())
 			self.extension = rangeFile.readline()
-			self.notes = listdir(self.path)
+			self.notes = os.listdir(self.path)
 		except FileNotFoundError :
 			raise FileNotFoundError("Range file missing in instrument directory!\n")
 			
