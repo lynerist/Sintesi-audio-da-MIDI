@@ -2,10 +2,10 @@ import mido
 from functions import *
 
 song 		= "evangelion"
-instrument 	= "trumpet"
+instrument 	= "violin"
 
 try:
-	instrument = Instrument(instrument) 
+	instrument = Instrument(instrument)
 except FileNotFoundError as e :
 	print(e)
 	exit()
@@ -13,12 +13,16 @@ except FileNotFoundError as e :
 midi = MidiInterface(mido.MidiFile(f"midi/{song}.mid", clip=True))
 duration = midi.duration
 
+#TODO essentia / madmom
 
 # genero un file audio vuoto lungo quanto il file midi (+500 per non troncare alla fine)
 audio = AudioSegment.silent(midi.length*1000 + 500)
 
 # il clock nella traccia
 countTicks = 0
+
+#TODO note ON DA SISTEMARE (nel file convertjustnoteon)
+#TODO note off stoppa ogni nota
 
 # Dizionario per salvarmi il tick di inizio dei note on per poi associarli ai note off relativi
 noteOnCollection = dict()
@@ -45,22 +49,21 @@ for msg in midi.allTracks:
 		if note.note in cacheAudioSamples.keys(): 
 			audioNote = cacheAudioSamples[note.note]
 		else:
-			#controllo se sono fuori range  (Da sistemare)
-			if int(msg.note) < int(instrument.rangeNotes[0]) or int(msg.note) > int(instrument.rangeNotes[1]):
-				audioNote = AudioSegment.from_file(instrument.path + instrument.rangeNotes[int(msg.note) > int(instrument.rangeNotes[1])] + "." + instrument.extension)
-				audioNote = pitchChange(audioNote, (int(msg.note) - int(instrument.rangeNotes[int(msg.note) > int(instrument.rangeNotes[1])])))
-			else:	
-				offset = 0
-				while not "%d.%s"%(note.note - offset, instrument.extension) in instrument.notes:
-					offset += 1
-				audioNote = AudioSegment.from_file("%s%d.%s"%(instrument.path, note.note - offset, instrument.extension))
-				audioNote = pitchChange(audioNote, offset)
+			minDistance 	= 127
+			minDistanceNote = 0
+			for sampleNote in instrument.notes:
+				distance = abs(sampleNote - note.note)
+				if distance < minDistance:
+					minDistance, minDistanceNote = distance, sampleNote
+				else:
+					break
+			audioNote = AudioSegment.from_file(f"{instrument.path}{minDistanceNote}.{instrument.extension}")
+			audioNote = pitchChange(audioNote, note.note - minDistanceNote)
 
 			cacheAudioSamples[note.note] = audioNote				
 
 		#calcolato sulla velocity è un valore negativo nel range [-18, 0] che viene usato per applicare una riduzione massima di 18dB
 		volume = (note.velocity/127)*18 - 18
-
 
 		#durata della nota midi
 		noteLength = duration(countTicks-note.startTime)

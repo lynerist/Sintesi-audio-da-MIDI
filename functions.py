@@ -9,12 +9,18 @@ def pitchChange(sound, change):
 		adjuste the pitch by change semitones
 	"""
 	semitoneDistance = 2 ** (1/12)
+	#numpy interp1
+
 
 	speed = (semitoneDistance**change)
 	newAudio = sound._spawn(sound.raw_data, overrides={"frame_rate": int(sound.frame_rate * speed)})
 	return newAudio.set_frame_rate(sound.frame_rate)
 
 def adjustLength(sound:AudioSegment, durationDesired):
+	#loop acceso spento
+	#ping pong
+	#attacco 12/15 ms
+	#rilascio 30/40 ms + fade out
 	"""
 		Adjust from the center cutting the samples or looping them
 	"""
@@ -35,7 +41,7 @@ def adjustLength(sound:AudioSegment, durationDesired):
 		#first half
 		adjusted = sound[:half-toTrim/2]
 		#second half
-		adjusted = adjusted.append(sound[half+toTrim/2:], crossfade)
+		adjusted = adjusted.append(sound[half+int(toTrim/2):], crossfade)
 		
 	else:
 		toAdd = (durationDesired - sound.duration_seconds) * 1000
@@ -115,7 +121,7 @@ class MidiInterface:
 
 class Note:
 	def __init__ (self, note, countTicks, velocity):
-		self.note = note
+		self.note = int(note)
 		self.startTime = countTicks
 		self.velocity = velocity 
 
@@ -133,7 +139,8 @@ class Instrument:
 			rangeFile = open(self.path + "range.txt", "r")
 			self.rangeNotes = tuple(rangeFile.readline().split())
 			self.extension = rangeFile.readline()
-			self.notes = os.listdir(self.path)
+			self.notes = [int(x[:-4]) for x in os.listdir(self.path) if len(x) < 8]
+			self.notes.sort()
 		except FileNotFoundError :
 			raise FileNotFoundError("Range file missing in instrument directory!\n")
 			
