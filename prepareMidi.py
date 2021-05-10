@@ -1,7 +1,7 @@
 import mido
 import os
 
-song = "multiNoteOn"
+song = "binks_Sake"
 
 midi = mido.MidiFile(f"midi/{song}.mid", clip=True)
 print("Midi file:\n", midi, "\n")
@@ -17,14 +17,13 @@ for track in midi.tracks:
 	for msg in track:
 		if msg.type == "note_on":
 			if msg.velocity == 0:
-				msg = mido.Message("note_off", note = msg.note, time=msg.time)
+				msg = mido.Message("note_off", note = msg.note, time=msg.time, channel = msg.channel)
 			elif noteAlreadyOn.get(msg.note):
-				newTrack.append(mido.Message("note_off", note = msg.note, time=msg.time))
-				newTrack.append(mido.Message("note_on", note = msg.note, velocity = msg.velocity, time = 0))
+				newTrack.append(mido.Message("note_off", note = msg.note, time=msg.time, channel = msg.channel))
+				newTrack.append(mido.Message("note_on", note = msg.note, velocity = msg.velocity, time = 0, channel = msg.channel))
 			else:
 				newTrack.append(msg)
 			noteAlreadyOn[msg.note] = True	
-
 								
 		if msg.type == "note_off":
 			noteAlreadyOn[msg.note] = False
@@ -40,6 +39,5 @@ midi.save(f"backups/{song}.mid")
 newFile.save(f"midi/{song}.mid")
 
 
-#TODO file di pre elaborazione
 
 

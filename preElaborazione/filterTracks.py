@@ -1,6 +1,6 @@
 import mido
 
-song = "star_wars"
+song = "mario_"
 toAnalyze = "midi/%s.mid"%song
 newSongName = "midi/new-%s.mid"%song
 

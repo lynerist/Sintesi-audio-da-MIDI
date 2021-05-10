@@ -3,8 +3,8 @@ import pydub
 from functions import MidiInterface
 import sys
 
-song = "multiNoteOn"
-trackNumber = 0
+song = "river"
+trackNumber = ""
 if len(sys.argv) > 1:
 	trackNumber = sys.argv[1]
 
@@ -22,7 +22,7 @@ if trackNumber == "a":
 	print("message from all tracks")
 	for msg in midi.allTracks:
 		print(msg)	
-else:
+elif len(sys.argv) > 1:
 	print("Messages of track %s:"%trackNumber)
 	for msg in midi.track(int(trackNumber)):
  		print(msg)

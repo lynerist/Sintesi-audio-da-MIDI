@@ -94,6 +94,8 @@ class MidiInterface:
 		
 		#merge all tracks
 		self.allTracks = mido.merge_tracks(midi.tracks)
+		self.tracks = midi.tracks
+		self.ntracks = len(midi.tracks)
 
 		for msg in self.allTracks:
 			if not msg.is_meta:
@@ -124,12 +126,6 @@ class Note:
 		self.note = int(note)
 		self.startTime = countTicks
 		self.velocity = velocity 
-
-class BufferNoteOn:
-	def __init__ (self):
-		self._memory = dict()
-	
-	
 
 class Instrument:
 	"""
