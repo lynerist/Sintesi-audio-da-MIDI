@@ -9,7 +9,7 @@ def pitchChange(sound, change):
 		adjuste the pitch by change semitones
 	"""
 	semitoneDistance = 2 ** (1/12)
-	#numpy interp1
+	#TODO guardare numpy interp1
 
 
 	speed = (semitoneDistance**change)
@@ -17,10 +17,10 @@ def pitchChange(sound, change):
 	return newAudio.set_frame_rate(sound.frame_rate)
 
 def adjustLength(sound:AudioSegment, durationDesired):
-	#loop acceso spento
-	#ping pong
-	#attacco 12/15 ms
-	#rilascio 30/40 ms + fade out
+	#TODO loop acceso spento
+	#TODO ping pong
+	#TODO attacco 12/15 ms
+	#TODO rilascio 30/40 ms + fade out
 	"""
 		Adjust from the center cutting the samples or looping them
 	"""
@@ -125,13 +125,19 @@ class Note:
 		self.startTime = countTicks
 		self.velocity = velocity 
 
+class BufferNoteOn:
+	def __init__ (self):
+		self._memory = dict()
+	
+	
+
 class Instrument:
 	"""
 		interface to the audio samples of the instrument
 	"""
 	def __init__(self, instrument):
 		self.name = instrument
-		self.path = "instruments/%s/"%self.name
+		self.path = f"instruments/{self.name}/"
 		self.extension = ""
 
 		#leggo il range di note disponibili per lo strumento scelto
@@ -145,3 +151,4 @@ class Instrument:
 			raise FileNotFoundError("Range file missing in instrument directory!\n")
 			
 		
+

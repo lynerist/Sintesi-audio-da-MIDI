@@ -1,8 +1,8 @@
 import mido
 from functions import *
 
-song 		= "evangelion"
-instrument 	= "violin"
+song 		= "multiNoteOn"
+instrument 	= "trumpet"
 
 try:
 	instrument = Instrument(instrument)
@@ -39,6 +39,7 @@ for msg in midi.allTracks:
 	if msg.type == "note_on":
 		countTicks += msg.time	# Clock		
 		noteOnCollection[msg.note] = Note(msg.note, countTicks, msg.velocity)
+		
 
 	elif msg.type == "note_off":
 		countTicks += msg.time	# Clock

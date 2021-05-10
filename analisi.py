@@ -3,10 +3,10 @@ import pydub
 from functions import MidiInterface
 import sys
 
-song = "x_files"
+song = "multiNoteOn"
 trackNumber = 0
 if len(sys.argv) > 1:
-	trackNumber = int(sys.argv[1])
+	trackNumber = sys.argv[1]
 
 midi = MidiInterface(mido.MidiFile("midi/%s.mid"%song, clip=True))
 
@@ -18,6 +18,11 @@ for track in midi.midi.tracks:
 print()
 
 
-print("Messages of track %d:"%trackNumber)
-for msg in midi.track(trackNumber):
- 	print(msg)
+if trackNumber == "a":
+	print("message from all tracks")
+	for msg in midi.allTracks:
+		print(msg)	
+else:
+	print("Messages of track %s:"%trackNumber)
+	for msg in midi.track(int(trackNumber)):
+ 		print(msg)
