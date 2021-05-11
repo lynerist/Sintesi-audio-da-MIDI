@@ -1,8 +1,6 @@
 import pydub
 import os
 
-
-
 instrumentName = "frenchHorn"
 outputPath = f"instruments/{instrumentName}"
 
@@ -12,7 +10,7 @@ duplicatedNotes = []
 
 for fileName in os.listdir("samplesExtractor"):
 	instrument = pydub.AudioSegment.from_file("samplesExtractor/"+fileName, "flac")
-	notes = pydub.silence.detect_nonsilent(instrument, silence_thresh=-60 )
+	notes = pydub.silence.detect_nonsilent(instrument, silence_thresh=-65, min_silence_len=500 )
 	print(notes)
 	
 if not os.path.exists(outputPath):
@@ -25,7 +23,9 @@ for i, note in enumerate(notes):
 
 	singleNote = instrument[note[0]:note[1]]
 
-	singleNote.fade_out(650).export(f"{outputPath}/{i+lowestNote-duplicatedOffset}.wav", "wav")
+	startNote = pydub.silence.detect_leading_silence(singleNote)
+
+	singleNote[startNote:].fade_out(400).export(f"{outputPath}/{i+lowestNote-duplicatedOffset}.wav", "wav")
 
 rangeFile = open(f"{outputPath}/range.txt", "a")
 rangeFile.write(f"{lowestNote} {lowestNote + len(notes) -1 -duplicatedOffset}\nwav")

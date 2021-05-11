@@ -1,7 +1,7 @@
 import mido
 from functions import *
 
-song 		= "He_is_a_Pirate"
+song 		= "skyrim"
 instrument 	= "frenchHorn"
 
 try:

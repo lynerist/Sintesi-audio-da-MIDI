@@ -40,8 +40,10 @@ def adjustLength(sound:AudioSegment, durationDesired):
 
 		#first half
 		adjusted = sound[:half-toTrim/2]
+
 		#second half
 		adjusted = adjusted.append(sound[half+int(toTrim/2):], crossfade)
+
 		
 	else:
 		toAdd = (durationDesired - sound.duration_seconds) * 1000
