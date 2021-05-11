@@ -1,7 +1,7 @@
 import mido
 from functions import *
 
-song 		= "river"
+song 		= "He_is_a_Pirate"
 instrument 	= "harpsichord"
 
 try:
@@ -18,23 +18,24 @@ duration = midi.duration
 # genero un file audio vuoto lungo quanto il file midi (+500 per non troncare alla fine)
 audio = AudioSegment.silent(midi.length*1000 + 500)
 
-#per ogni traccia applico il procedimento 
+
+# cache dove salvo le note già suonate per non ricercarle
+cacheAudioSamples = dict()
+
+#per ogni traccia applico il procedimento. 
 for index, track in enumerate(midi.tracks):
 	print(f"\ntrack {index +1}/{midi.ntracks} - ", end = " ")
 
 	# il clock nella traccia
 	countTicks = 0
 
-	#TODO note off stoppa ogni nota
+	#TODO note off stoppa ogni nota del channel
 
 	# Dizionario per salvarmi il tick di inizio dei note on per poi associarli ai note off relativi
 	noteOnCollection = dict()
 
 	# Per visualizzare l'elaborazione nel tempo
 	loading = 0
-
-	# cache dove salvo le note già suonate per non ricercarle
-	cacheAudioSamples = dict()
 
 	# Scorro ogni messaggio
 	for msg in track:

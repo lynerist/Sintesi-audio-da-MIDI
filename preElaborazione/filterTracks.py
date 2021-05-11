@@ -1,10 +1,10 @@
 import mido
 
-song = "mario_"
+song = "rick"
 toAnalyze = "midi/%s.mid"%song
 newSongName = "midi/new-%s.mid"%song
 
-trackToSave = [0,1,2,3,4]
+trackToSave = [0,1,2,3,4,5,8,9,11,12,13,14,15]
 velocities = dict()
 
 
@@ -24,7 +24,7 @@ for index, track in enumerate(midi.tracks):
 			traccia.name = track.name
 			for msg in track:
 				if msg.type == "note_on" or msg.type == "note_off":
-					msg = mido.Message(msg.type, note = msg.note, velocity = velocities[index], time=msg.time)
+					msg = mido.Message(msg.type, note = msg.note, velocity = velocities[index], time=msg.time, channel = msg.channel)
 				traccia.append(msg)
 			newFile.tracks.append(traccia)
 		else:
