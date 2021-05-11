@@ -1,8 +1,8 @@
 import mido
 from functions import *
 
-song 		= "He_is_a_Pirate"
-instrument 	= "harpsichord"
+song 		= "skyrim"
+instrument 	= "panflute"
 
 try:
 	instrument = Instrument(instrument)

@@ -1,7 +1,7 @@
 import mido
 import os
 
-song = "He_is_a_Pirate"
+song = "skyrim"
 
 midi = mido.MidiFile(f"midi/{song}.mid", clip=True)
 print("Midi file:\n", midi, "\n")
@@ -18,6 +18,11 @@ for track in midi.tracks:
 	offsetByNotMeta = 0
 
 	for msg in track:
+		if msg.is_meta:
+			if msg.type != "unknown_meta":
+				newTrack.append(msg)
+			continue
+
 		if msg.type == "note_on":
 			if msg.velocity == 0:
 				msg = mido.Message("note_off", note = msg.note, time=msg.time+offsetByNotMeta, channel = msg.channel)
@@ -35,7 +40,7 @@ for track in midi.tracks:
 			newTrack.append(mido.Message("note_off", note = msg.note, time=msg.time+offsetByNotMeta, channel = msg.channel))
 
 		
-		if not msg.is_meta and msg.type not in ["note_on", "note_off"]:
+		if msg.type not in ["note_on", "note_off"]:
 			offsetByNotMeta += msg.time
 		else:
 			offsetByNotMeta = 0
@@ -50,12 +55,12 @@ print(newFile, "\n")
 
 from functions import MidiInterface
 
-m = MidiInterface(midi)
-n = MidiInterface(newFile)
+# m = MidiInterface(midi)
+# n = MidiInterface(newFile)
 
 
-print(midi.length, m.totalTicks)
-print(newFile.length, n.totalTicks)
+# print(midi.length, m.totalTicks)
+# print(newFile.length, n.totalTicks)
 
 midi.save(f"backups/{song}.mid")
 newFile.save(f"midi/{song}.mid")
