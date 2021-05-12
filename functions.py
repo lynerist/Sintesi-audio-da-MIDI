@@ -20,7 +20,9 @@ def adjustLength(sound:AudioSegment, durationDesired):
 	#TODO loop acceso spento
 	#TODO ping pong
 	#TODO attacco 12/15 ms
+	attack = 15
 	#TODO rilascio 30/40 ms + fade out
+	release = 40
 	"""
 		Adjust from the center cutting the samples or looping them
 	"""
@@ -39,12 +41,12 @@ def adjustLength(sound:AudioSegment, durationDesired):
 		toTrim -= crossfade 
 
 		#first half
-		adjusted = sound[:half-toTrim/2]
+		adjusted = sound[:max(half-toTrim/2, attack)]
 
 		#second half
-		adjusted = adjusted.append(sound[half+int(toTrim/2):], crossfade)
+		adjusted = adjusted.append(sound[max(half+int(toTrim/2), release):], crossfade)
 
-		
+
 	else:
 		toAdd = (durationDesired - sound.duration_seconds) * 1000
 		widthOfLoop = sound.duration_seconds * 1000 / 4
@@ -132,11 +134,18 @@ class Note:
 class Instrument:
 	"""
 		interface to the audio samples of the instrument
+
+		range file contains:
+			minNote maxNote
+			extension
+			loopable/not loopable
+		
 	"""
 	def __init__(self, instrument):
 		self.name = instrument
 		self.path = f"instruments/{self.name}/"
 		self.extension = ""
+		self.loopable = False
 
 		#leggo il range di note disponibili per lo strumento scelto
 		try:
@@ -145,6 +154,8 @@ class Instrument:
 			self.extension = rangeFile.readline()
 			self.notes = [int(x[:-4]) for x in os.listdir(self.path) if len(x) < 8]
 			self.notes.sort()
+			self.loopable = rangeFile.readline() == "loopable"
+			
 		except FileNotFoundError :
 			raise FileNotFoundError("Range file missing in instrument directory!\n")
 			
