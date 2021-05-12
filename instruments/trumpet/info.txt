@@ -1,3 +1,2 @@
 52 86
-wav
 loopable

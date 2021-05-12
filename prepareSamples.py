@@ -31,5 +31,5 @@ for i, note in enumerate(notes):
 loop = "loopable" if (len(sys.argv)>1) else "not loopable"
 	
 infoFile = open(f"{outputPath}/info.txt", "a")
-infoFile.write(f"{lowestNote} {lowestNote + len(notes) -1 -duplicatedOffset}\nwav\n{loop}")
+infoFile.write(f"{lowestNote} {lowestNote + len(notes) -1 -duplicatedOffset}\n{loop}")
 infoFile.close()

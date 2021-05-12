@@ -137,25 +137,26 @@ class Instrument:
 
 		info file contains:
 			minNote maxNote
-			extension
 			loopable/not loopable
+			attack and realeases samples
 		
 	"""
 	def __init__(self, instrument):
 		self.name = instrument
 		self.path = f"instruments/{self.name}/"
-		self.extension = ""
 		self.loopable = False
 
 		#leggo il range di note disponibili per lo strumento scelto
 		try:
 			infoFile = open(self.path + "info.txt", "r")
 			self.rangeNotes = tuple(infoFile.readline().split())
-			self.extension = infoFile.readline()
 			self.notes = [int(x[:-4]) for x in os.listdir(self.path) if len(x) < 8]
 			self.notes.sort()
 			self.loopable = infoFile.readline() == "loopable"
-			
+			self.endOfAttackStartOfRelease = dict()
+			attacksAndReleases = [ [int(x) for x in ar.split(",")] for ar in infoFile.readline().split()]
+			for index, note in enumerate(self.notes):
+				self.endOfAttackStartOfRelease[note] = attacksAndReleases[index]
 		except FileNotFoundError :
 			raise FileNotFoundError("Info file missing in instrument directory!\n")
 			

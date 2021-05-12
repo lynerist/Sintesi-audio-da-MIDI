@@ -61,7 +61,7 @@ for index, track in enumerate(midi.tracks):
 						minDistance, minDistanceNote = distance, sampleNote
 					else:
 						break
-				audioNote = AudioSegment.from_file(f"{instrument.path}{minDistanceNote}.{instrument.extension}")
+				audioNote = AudioSegment.from_file(f"{instrument.path}{minDistanceNote}.wav")
 				audioNote = pitchChange(audioNote, note.note - minDistanceNote)
 
 				cacheAudioSamples[note.note] = audioNote				
