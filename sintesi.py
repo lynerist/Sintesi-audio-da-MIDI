@@ -29,7 +29,6 @@ for index, track in enumerate(midi.tracks):
 	# il clock nella traccia
 	countTicks = 0
 
-	#TODO note off stoppa ogni nota del channel
 
 	# Dizionario per salvarmi il tick di inizio dei note on per poi associarli ai note off relativi
 	noteOnCollection = dict()
@@ -73,7 +72,7 @@ for index, track in enumerate(midi.tracks):
 			noteLength = duration(countTicks-note.startTime)
 			#scrivo il campione (prima adatto la durata del campione)
 			
-			audio = audio.overlay(adjustLength(audioNote, noteLength) + volume, duration(note.startTime) * 1000)
+			audio = audio.overlay(adjustLength(audioNote, noteLength, instrument.loopable) + volume, duration(note.startTime) * 1000)
 
 
 		currentLoading = countTicks/midi.totalTicks*100

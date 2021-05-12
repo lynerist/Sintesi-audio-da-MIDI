@@ -16,8 +16,7 @@ def pitchChange(sound, change):
 	newAudio = sound._spawn(sound.raw_data, overrides={"frame_rate": int(sound.frame_rate * speed)})
 	return newAudio.set_frame_rate(sound.frame_rate)
 
-def adjustLength(sound:AudioSegment, durationDesired):
-	#TODO loop acceso spento
+def adjustLength(sound:AudioSegment, durationDesired, loopable):
 	#TODO ping pong
 	#TODO attacco 12/15 ms
 	attack = 15
@@ -47,7 +46,7 @@ def adjustLength(sound:AudioSegment, durationDesired):
 		adjusted = adjusted.append(sound[max(half+int(toTrim/2), release):], crossfade)
 
 
-	else:
+	elif loopable:
 		toAdd = (durationDesired - sound.duration_seconds) * 1000
 		widthOfLoop = sound.duration_seconds * 1000 / 4
 		toLoop = sound[half-widthOfLoop:half+widthOfLoop]
@@ -83,7 +82,8 @@ def adjustLength(sound:AudioSegment, durationDesired):
 		adjusted = start.append(middle, min(excess/2, len(start)))
 		#first part + middle + end
 		adjusted = adjusted.append(end, min(excess/2, len(end)))	
-	
+	else:
+		adjusted = sound
 	return adjusted
 
 

@@ -8,11 +8,11 @@ fs = 44.1 #kHz
 MS_15 = int(fs * 15) #campioni in 15ms
 MS_50 = int(fs * 50) #campioni in 50ms
 
-instrumentName = "frenchHorn"
+instrumentName = "harpsichord"
 outputPath = f"instruments/{instrumentName}"
 
-#outputAudioPath = f"{outputPath}/audioTest"
-#os.mkdir(outputAudioPath)
+outputAudioPath = f"{outputPath}/audioTest"
+os.mkdir(outputAudioPath)
 
 times = []
 
@@ -32,7 +32,7 @@ for fileName in os.listdir(outputPath):
 			break
 	
 	times.append((endOfAttack, startOfRelease))
-	#write(f"{outputAudioPath}/{fileName}",44100, np.concatenate((note[:endOfAttack], note[-startOfRelease:])))
+	write(f"{outputAudioPath}/{fileName}",44100, np.concatenate((note[:endOfAttack], note[-startOfRelease:])))
 
 infoFile = open(f"{outputPath}/info.txt", "a")
 infoFile.write("\n" + " ".join(f"{ea},{sr}" for ea, sr in times))
