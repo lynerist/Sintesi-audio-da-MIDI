@@ -1,5 +1,6 @@
 import pydub
 import os
+import sys
 
 instrumentName = "frenchHorn"
 outputPath = f"instruments/{instrumentName}"
@@ -27,8 +28,8 @@ for i, note in enumerate(notes):
 
 	singleNote[startNote:].fade_out(400).export(f"{outputPath}/{i+lowestNote-duplicatedOffset}.wav", "wav")
 
-rangeFile = open(f"{outputPath}/range.txt", "a")
-rangeFile.write(f"{lowestNote} {lowestNote + len(notes) -1 -duplicatedOffset}\nwav")
-rangeFile.close()
-
-# TODO scrivere file range in qualche modo
+loop = "loopable" if (len(sys.argv)>1) else "not loopable"
+	
+infoFile = open(f"{outputPath}/info.txt", "a")
+infoFile.write(f"{lowestNote} {lowestNote + len(notes) -1 -duplicatedOffset}\nwav\n{loop}")
+infoFile.close()

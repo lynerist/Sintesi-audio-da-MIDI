@@ -15,7 +15,7 @@ if not os.path.exists(trimmedPath):
 
 #leggo il range di note disponibili
 try:
-	rangeNotes = tuple(open(instrumentPath + "range.txt", "r").readline().split())
+	rangeNotes = tuple(open(instrumentPath + "info.txt", "r").readline().split())
 except Exception as e:
 	rangeNotes = e
 	exit()

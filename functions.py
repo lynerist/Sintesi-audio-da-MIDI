@@ -135,7 +135,7 @@ class Instrument:
 	"""
 		interface to the audio samples of the instrument
 
-		range file contains:
+		info file contains:
 			minNote maxNote
 			extension
 			loopable/not loopable
@@ -149,15 +149,15 @@ class Instrument:
 
 		#leggo il range di note disponibili per lo strumento scelto
 		try:
-			rangeFile = open(self.path + "range.txt", "r")
-			self.rangeNotes = tuple(rangeFile.readline().split())
-			self.extension = rangeFile.readline()
+			infoFile = open(self.path + "info.txt", "r")
+			self.rangeNotes = tuple(infoFile.readline().split())
+			self.extension = infoFile.readline()
 			self.notes = [int(x[:-4]) for x in os.listdir(self.path) if len(x) < 8]
 			self.notes.sort()
-			self.loopable = rangeFile.readline() == "loopable"
+			self.loopable = infoFile.readline() == "loopable"
 			
 		except FileNotFoundError :
-			raise FileNotFoundError("Range file missing in instrument directory!\n")
+			raise FileNotFoundError("Info file missing in instrument directory!\n")
 			
 		
 
