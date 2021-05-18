@@ -21,6 +21,8 @@ for fileName in os.listdir(outputPath):
 
 	note = np.array(read(f"{outputPath}/{fileName}")[1])
 
+	
+
 	for index, sample in enumerate([l + r for [l, r] in note[MS_50:]]):
 		if not sample:
 			endOfAttack = index + MS_50

@@ -1,7 +1,11 @@
 import mido
 import os
 from pydub import AudioSegment
+import numpy as np
+from scipy.io.wavfile import read
+from scipy.io.wavfile import write
 
+FS = 44100	
 
 #cambia il pitch specificando il numero di semitoni
 def pitchChange(sound, change):
@@ -15,6 +19,47 @@ def pitchChange(sound, change):
 	speed = (semitoneDistance**change)
 	newAudio = sound._spawn(sound.raw_data, overrides={"frame_rate": int(sound.frame_rate * speed)})
 	return newAudio.set_frame_rate(sound.frame_rate)
+
+def adjustLengthNp(note:np.array, durationDesired, loopable, endOfAttack, startOfRelease, fs = 44100):
+	samplesInNote = len(note)
+	samplesDesired = durationDesired * fs
+	halfNote = int(samplesInNote/2)
+
+	#Se è troppo corta restituisco attacco più rilascio
+	if samplesDesired < endOfAttack + startOfRelease:
+		return np.concatenate((note[:endOfAttack], note[-startOfRelease:]))
+
+	if samplesInNote > samplesDesired:
+		halfSamplesToTrim = int((samplesDesired - samplesInNote)/2)
+		
+
+		endFirstHalfIndex = halfNote - halfSamplesToTrim
+		minSampleEndStart = note[endFirstHalfIndex]
+
+		startSecondHalfIndex =  halfNote + halfSamplesToTrim
+		minSampleStartEnd = note[startSecondHalfIndex]
+
+
+		for index in range(50):
+			#Cerco il sample più prossimo allo zero eccedendo al massimo di 50 samples che saranno aggiunti al suono.
+			indexFirstHalf = halfNote - halfSamplesToTrim + index
+			sampleFirstHalf = note[indexFirstHalf]
+			if abs(sampleFirstHalf) < minSampleEndStart:
+				minSampleEndStart = abs(sampleFirstHalf)
+				endFirstHalfIndex = indexFirstHalf
+
+			indexSecondHalf = halfNote + halfSamplesToTrim - index
+			sampleSecondHalf = note[indexSecondHalf]
+			if abs(sampleSecondHalf) < minSampleStartEnd:
+				minSampleStartEnd = abs(sampleSecondHalf)
+				startSecondHalfIndex = indexSecondHalf
+
+		return np.concatenate((note[:endFirstHalfIndex], note[startSecondHalfIndex:]))
+	
+	return note
+			
+
+
 
 def adjustLength(sound:AudioSegment, durationDesired, loopable):
 	#TODO ping pong
