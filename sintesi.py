@@ -17,7 +17,7 @@ duration = midi.duration
 
 # genero un file audio vuoto lungo quanto il file midi (+500 per non troncare alla fine)
 #audio = AudioSegment.silent(midi.length*1000 + 500)
-audio = np.zeros(int(midi.length * FS) + 50000) # TODO RIMUOVERE L'ECCESSIVO SILENZIO A DESTRA
+audio = np.zeros(int(midi.length * FS) + 50000, dtype=int) # TODO RIMUOVERE L'ECCESSIVO SILENZIO A DESTRA
 
 
 # cache dove salvo le note già suonate per non ricercarle
@@ -86,7 +86,7 @@ for index, track in enumerate(midi.tracks):
 
 			#maybe sono fuori array a destra 	MOLTO PROBABILE
 
-			print(np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote))
+			#np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote)
 
 			audio = np.concatenate((audio[:offset], np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote), audio[offset + len(adjustedLengthNote):]))
 
