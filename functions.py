@@ -20,41 +20,42 @@ def pitchChange(sound, change):
 	newAudio = sound._spawn(sound.raw_data, overrides={"frame_rate": int(sound.frame_rate * speed)})
 	return newAudio.set_frame_rate(sound.frame_rate)
 
-def adjustLengthNp(note:np.array, durationDesired, loopable, endOfAttack, startOfRelease, fs = 44100):
+
+def pitchChangeNp(sound:np.array, change):
+	if change == 0: return sound
+
+	semitoneDistance = 2 ** (1/12)
+	speed = (semitoneDistance**change)
+	
+	oldSpeed = np.arange(0, len(sound)/FS, 1/FS)
+	newSpeed = np.arange(0, len(sound)/(FS * speed), 1/(FS * speed))[:len(sound)]
+	
+	#print(len(oldSpeed), len(newSpeed), len(sound), "speed: ", speed)
+
+	return fadeOut(np.interp(oldSpeed, newSpeed, sound), 2000)
+
+def adjustLengthNp(note:np.array, durationDesired, loopable, endOfAttack, startOfRelease):
 	samplesInNote = len(note)
-	samplesDesired = durationDesired * fs
+	samplesDesired = int(durationDesired * FS)
 	halfNote = int(samplesInNote/2)
 
-	#Se è troppo corta restituisco attacco più rilascio
+	#Se è troppo corta restituisco crossfade di attacco più rilascio
 	if samplesDesired < endOfAttack + startOfRelease:
-		return np.concatenate((note[:endOfAttack], note[-startOfRelease:]))
+		return crossfade(note[:endOfAttack], note[-startOfRelease:])
 
 	if samplesInNote > samplesDesired:
-		halfSamplesToTrim = int((samplesDesired - samplesInNote)/2)
-		
+		halfSamplesToTrim = int((samplesInNote - samplesDesired)/2)
 
 		endFirstHalfIndex = halfNote - halfSamplesToTrim
-		minSampleEndStart = note[endFirstHalfIndex]
 
 		startSecondHalfIndex =  halfNote + halfSamplesToTrim
-		minSampleStartEnd = note[startSecondHalfIndex]
+		
 
 
-		for index in range(50):
-			#Cerco il sample più prossimo allo zero eccedendo al massimo di 50 samples che saranno aggiunti al suono.
-			indexFirstHalf = halfNote - halfSamplesToTrim + index
-			sampleFirstHalf = note[indexFirstHalf]
-			if abs(sampleFirstHalf) < minSampleEndStart:
-				minSampleEndStart = abs(sampleFirstHalf)
-				endFirstHalfIndex = indexFirstHalf
+		#print(minSampleEndStart, minSampleStartEnd)
 
-			indexSecondHalf = halfNote + halfSamplesToTrim - index
-			sampleSecondHalf = note[indexSecondHalf]
-			if abs(sampleSecondHalf) < minSampleStartEnd:
-				minSampleStartEnd = abs(sampleSecondHalf)
-				startSecondHalfIndex = indexSecondHalf
+		return crossfade(note[:endFirstHalfIndex], note[startSecondHalfIndex:])
 
-		return np.concatenate((note[:endFirstHalfIndex], note[startSecondHalfIndex:]))
 	
 	return note
 			
@@ -206,4 +207,27 @@ class Instrument:
 			raise FileNotFoundError("Info file missing in instrument directory!\n")
 			
 		
+def crossfade(first, second, crossfadeSamples = 500):
+	"""
+		len specifies crossfade in samples
+	"""
 
+	fadeOut = np.multiply(first[-crossfadeSamples:], np.array([(x/crossfadeSamples)**0.5 for x in range(crossfadeSamples, 0, -1)])) 
+	fadeIn  = np.multiply(second[:crossfadeSamples], np.array([(x/crossfadeSamples)**0.5 for x in range(0, crossfadeSamples,  1)])) 
+
+	return np.concatenate((first[:-crossfadeSamples], np.add(fadeOut, fadeIn), second[crossfadeSamples:]))
+
+def fadeIn(audio, fadeInSamples = 500):
+	fadeIn  = np.multiply(audio[:fadeInSamples], np.array([(x/fadeInSamples)**0.5 for x in range(0, fadeInSamples,  1)])) 
+	return np.concatenate((fadeIn, audio[fadeInSamples:]))
+
+def fadeOut(audio, fadeOutSamples = 500):
+	fadeOut = np.multiply(audio[-fadeOutSamples:], np.array([(x/fadeOutSamples)**0.5 for x in range(fadeOutSamples, 0, -1)])) 
+	return np.concatenate((audio[:-fadeOutSamples], fadeOut))
+
+
+# if __name__ == "__main__":
+# 	a = np.array([0.2, 0.4, 0.5, 0.4, 0.2, 0])
+# 	b = np.array([0.5, 0.6, 0.9, 0.7, 0.5, 0.3, 0.1, 0])
+
+# 	print(crossfade(a, b, 4))

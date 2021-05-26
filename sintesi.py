@@ -1,8 +1,9 @@
 import mido
 from functions import *
+import soundfile as sf
 
 song 		= "evangelion"
-instrument 	= "frenchHorn"
+instrument 	= "trumpet"
 
 try:
 	instrument = Instrument(instrument)
@@ -13,11 +14,14 @@ except FileNotFoundError as e :
 midi = MidiInterface(mido.MidiFile(f"midi/{song}.mid", clip=True))
 duration = midi.duration
 
+#TODO LEVARE
+outputAudio = np.array([])
+
 #TODO essentia / madmom
 
 # genero un file audio vuoto lungo quanto il file midi (+500 per non troncare alla fine)
 #audio = AudioSegment.silent(midi.length*1000 + 500)
-audio = np.zeros(int(midi.length * FS) + 50000, dtype=int) # TODO RIMUOVERE L'ECCESSIVO SILENZIO A DESTRA
+audio = np.zeros(int((midi.length + 1) * FS), dtype=int) 
 
 
 # cache dove salvo le note già suonate per non ricercarle
@@ -61,8 +65,19 @@ for index, track in enumerate(midi.tracks):
 						minDistance, minDistanceNote = distance, sampleNote
 					else:
 						break
-				audioNote = AudioSegment.from_file(f"{instrument.path}{minDistanceNote}.wav")				#TODO RENDERLI SOLO NUMPY E NON PIù AUDIONOTE
-				audioNote = pitchChange(audioNote, note.note - minDistanceNote)
+				#audioNote = AudioSegment.from_file(f"{instrument.path}{minDistanceNote}.wav")				#TODO RENDERLI SOLO NUMPY E NON PIù AUDIONOTE
+				audioNote = sf.read(f"{instrument.path}{minDistanceNote}.wav")[0]
+				if audioNote.ndim > 1:
+					audioNote = np.asarray([r + l for [l, r] in audioNote])
+
+								
+				#TODO LEVARE
+				if minDistance > 0:
+					outputAudio = np.concatenate((outputAudio, np.zeros(11025),audioNote, np.zeros(11025)))
+
+
+				#audioNote = pitchChange(audioNote, note.note - minDistanceNote)
+				audioNote = pitchChangeNp(audioNote, note.note - minDistanceNote)
 
 				cacheAudioSamples[note.note] = audioNote
 				instrument.endOfAttackStartOfRelease[note.note] = instrument.endOfAttackStartOfRelease[minDistanceNote]				
@@ -78,16 +93,16 @@ for index, track in enumerate(midi.tracks):
 			startRelease = instrument.endOfAttackStartOfRelease[msg.note][1]
 
 
-			adjustedLengthNote = adjustLengthNp(audioNote.get_array_of_samples(), noteLength, instrument.loopable, endAttack, startRelease)
+			adjustedLengthNote = adjustLengthNp(audioNote, noteLength, instrument.loopable, endAttack, startRelease)
 
 			offset = int(duration(note.startTime) * FS) 
 
-			#print(len(adjustedLengthNote))
+			#print(len(adjustedLengthNote), len(audio[offset:offset + len(adjustedLengthNote)]))
 
 			#maybe sono fuori array a destra 	MOLTO PROBABILE
 
 			#np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote)
-
+			#TODO AGGIUNGERE VOLUME E DINAMICA
 			audio = np.concatenate((audio[:offset], np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote), audio[offset + len(adjustedLengthNote):]))
 
 			#audio = audio.overlay(adjustLength(audioNote, noteLength, instrument.loopable) + volume, duration(note.startTime) * 1000)
@@ -102,7 +117,13 @@ for index, track in enumerate(midi.tracks):
 if not os.path.exists("outputAudio"):
 	os.mkdir("outputAudio")
 
+audio = audio/8 #Prevent clipping
+
 #audio.export(f"outputAudio/{song}-{instrument.name}.wav", "wav")
-write(f"outputAudio/{song}-{instrument.name}.wav",FS, audio)
-			
-			
+sf.write(f"outputAudio/{song}-{instrument.name}.wav",audio, FS)
+
+
+#TODO LEVARE
+sf.write(f"outputAudio/output.wav",outputAudio, FS)
+
+
