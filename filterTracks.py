@@ -1,12 +1,13 @@
 import mido
 
-song = "rick"
+song = "evangelion"
 toAnalyze = "midi/%s.mid"%song
 newSongName = "midi/new-%s.mid"%song
 
-trackToSave = [0,1,2,3,4,5,8,9,11,12,13,14,15]
+trackToSave = [0,1,2,3,4]
 velocities = dict()
-
+velocities[4] = 30
+velocities[1] = 70
 
 
 midi = mido.MidiFile(toAnalyze, clip=True)

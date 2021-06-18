@@ -7,14 +7,17 @@ fs = 44.1 #kHz
 
 MS_15 = int(fs * 15) #campioni in 15ms
 MS_50 = int(fs * 50) #campioni in 50ms
-MS_100 = int(fs * 100) #campioni in 50ms
+MS_100 = int(fs * 100) #campioni in 100ms
+MS_150 = int(fs * 150) #campioni in 150ms
+
+MS_USED = MS_150
 
 
-instrumentName = "frenchHorn"
+instrumentName = "violin"
 outputPath = f"instruments/{instrumentName}"
 
 outputAudioPath = f"{outputPath}/audioTest"
-#os.mkdir(outputAudioPath)
+os.mkdir(outputAudioPath)
 
 times = []
 outputAudio = np.array([])
@@ -29,14 +32,14 @@ for fileName in os.listdir(outputPath):
 		note = np.asarray([r + l for [l, r] in note])
 
 
-	for index, sample in enumerate(note[MS_100:]):
+	for index, sample in enumerate(note[MS_USED:]):
 		if abs(sample) < 1/100:
-			endOfAttack = index + MS_100
+			endOfAttack = index + MS_USED
 			break
 
-	for index, sample in enumerate(note[::-1][MS_100:]):
+	for index, sample in enumerate(note[::-1][MS_USED:]):
 		if abs(sample) < 1/100:
-			startOfRelease = index + MS_100
+			startOfRelease = index + MS_USED
 			break
 	
 	times.append((endOfAttack, startOfRelease))
