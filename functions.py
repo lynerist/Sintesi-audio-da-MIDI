@@ -8,20 +8,8 @@ from scipy.io.wavfile import write
 FS = 44100	
 
 #cambia il pitch specificando il numero di semitoni
-def pitchChange(sound, change):
-	"""
-		adjuste the pitch by change semitones
-	"""
-	semitoneDistance = 2 ** (1/12)
-	#TODO guardare numpy interp1
 
-
-	speed = (semitoneDistance**change)
-	newAudio = sound._spawn(sound.raw_data, overrides={"frame_rate": int(sound.frame_rate * speed)})
-	return newAudio.set_frame_rate(sound.frame_rate)
-
-
-def pitchChangeNp(sound:np.array, change):
+def pitchChange(sound:np.array, change):
 	if change == 0: return sound
 
 	semitoneDistance = 2 ** (1/12)
@@ -34,7 +22,7 @@ def pitchChangeNp(sound:np.array, change):
 
 	return fadeOut(np.interp(oldSpeed, newSpeed, sound), 2000)
 
-def adjustLengthNp(note:np.array, durationDesired, loopable, endOfAttack, startOfRelease):
+def adjustLength(note:np.array, durationDesired, loopable, endOfAttack, startOfRelease):
 	samplesInNote = len(note)
 	samplesDesired = int(durationDesired * FS)
 	halfNote = int(samplesInNote/2)
@@ -50,90 +38,11 @@ def adjustLengthNp(note:np.array, durationDesired, loopable, endOfAttack, startO
 
 		startSecondHalfIndex =  halfNote + halfSamplesToTrim
 		
-
-
 		#print(minSampleEndStart, minSampleStartEnd)
 
 		return crossfade(note[:endFirstHalfIndex], note[startSecondHalfIndex:])
-
-	
 	return note
 			
-
-
-
-def adjustLength(sound:AudioSegment, durationDesired, loopable):
-	#TODO ping pong
-	#TODO attacco 12/15 ms
-	attack = 15
-	#TODO rilascio 30/40 ms + fade out
-	release = 40
-	"""
-		Adjust from the center cutting the samples or looping them
-	"""
-	#half in ms
-	half = sound.duration_seconds * 1000 / 2
-
-	#cut samples from the center
-	if sound.duration_seconds>durationDesired:
-		#per compensare il crossfade
-		toTrim = (sound.duration_seconds - durationDesired) * 1000 
-		
-		#at most 400ms but I try to crossfade all the two parts when they are too short 
-		crossfade = int(durationDesired * 1000)%400
-
-		#It will be trimmed by the crossfade
-		toTrim -= crossfade 
-
-		#first half
-		adjusted = sound[:max(half-toTrim/2, attack)]
-
-		#second half
-		adjusted = adjusted.append(sound[max(half+int(toTrim/2), release):], crossfade)
-
-
-	elif loopable:
-		toAdd = (durationDesired - sound.duration_seconds) * 1000
-		widthOfLoop = sound.duration_seconds * 1000 / 4
-		toLoop = sound[half-widthOfLoop:half+widthOfLoop]
-		
-		start =  sound[:half]
-		end = sound[half:]
-
-
-		internalCrossfade = 300
-		excess = len(toLoop) - toAdd % (len(toLoop) - internalCrossfade)
-
-		#I search an internalCrossfade that leaves an excess of 1 s that I can use to crossfade the start and the end. (To minimize jumps of the sound)
-		#The internalCrossfade must prevent excess too long for the length of the start and the end of the sound.
-		while (excess < 1200 or excess/2 > len(start) or excess/2 > len(end)):
-			internalCrossfade-=5
-			#I predict the excess
-			excess = len(toLoop) - toAdd % (len(toLoop) - internalCrossfade)
-
-			#safety condition
-			if internalCrossfade < 0 : 
-				internalCrossfade = 300 
-				break
-
-		#I initialize the middle with the single part to loop
-		middle = toLoop
-		while len(middle) < toAdd:
-			middle = middle.append(toLoop, internalCrossfade)
-
-		#I use the excess to crossfade the start and the end
-		excess = len(middle) - toAdd
-
-		#first part + middle
-		adjusted = start.append(middle, min(excess/2, len(start)))
-		#first part + middle + end
-		adjusted = adjusted.append(end, min(excess/2, len(end)))	
-	else:
-		adjusted = sound
-	return adjusted
-
-
-
 class MidiInterface:
 	def __init__(self, midi:mido.MidiFile):
 		self.midi = midi

@@ -2,8 +2,8 @@ import mido
 from functions import *
 import soundfile as sf
 
-song 		= "new-evangelion"
-instrument 	= "violin"
+song 		= "He_Is_a_Pirate"
+instrument 	= "harpsichord"
 
 try:
 	instrument = Instrument(instrument)
@@ -67,7 +67,7 @@ for index, track in enumerate(midi.tracks):
 					audioNote = np.asarray([r + l for [l, r] in audioNote])
 
 								
-				audioNote = pitchChangeNp(audioNote, note.note - minDistanceNote)
+				audioNote = pitchChange(audioNote, note.note - minDistanceNote)
 
 				cacheAudioSamples[note.note] = audioNote
 				instrument.endOfAttackStartOfRelease[note.note] = instrument.endOfAttackStartOfRelease[minDistanceNote]				
@@ -84,18 +84,18 @@ for index, track in enumerate(midi.tracks):
 			startRelease = instrument.endOfAttackStartOfRelease[msg.note][1]
 
 
-			adjustedLengthNote = adjustLengthNp(audioNote, noteLength, instrument.loopable, endAttack, startRelease)
+			adjustedLengthNote = adjustLength(audioNote, noteLength, instrument.loopable, endAttack, startRelease)
 
 			offset = int(duration(note.startTime) * FS) 
 
 			#print(len(adjustedLengthNote), len(audio[offset:offset + len(adjustedLengthNote)]))
 
-			#maybe sono fuori array a destra 	MOLTO PROBABILE
+			# Verificare se è giusto
 
 			#np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote)
 			
 			# divido la nota per questo fattore per conferire dinamica al pezzo.
-			dynamicFactor = 20 - (note.velocity/127)*19
+			dynamicFactor = 30 - (note.velocity/127)*29
 
 			#TODO AGGIUNGERE VOLUME E DINAMICA
 			audio = np.concatenate((audio[:offset], np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote / dynamicFactor), audio[offset + len(adjustedLengthNote):]))
