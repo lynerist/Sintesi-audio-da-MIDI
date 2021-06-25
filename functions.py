@@ -1,9 +1,6 @@
 import mido
 import os
-from pydub import AudioSegment
 import numpy as np
-from scipy.io.wavfile import read
-from scipy.io.wavfile import write
 
 FS = 44100	
 

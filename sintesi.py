@@ -2,7 +2,7 @@ import mido
 from functions import *
 import soundfile as sf
 
-song 		= "He_Is_a_Pirate"
+song 		= "rick_e_morty"
 instrument 	= "harpsichord"
 
 try:
@@ -16,8 +16,8 @@ duration = midi.duration
 
 #TODO essentia / madmom
 
-# genero un file audio vuoto lungo quanto il file midi (+500 per non troncare alla fine)
-audio = np.zeros(int((midi.length + 1) * FS), dtype=int) 
+# genero un file audio vuoto lungo quanto il file midi (+15000 per non troncare alla fine)
+audio = np.zeros(int((midi.length + 15) * FS), dtype=int) 
 
 
 # cache dove salvo le note già suonate per non ricercarle
@@ -96,10 +96,12 @@ for index, track in enumerate(midi.tracks):
 			
 			# divido la nota per questo fattore per conferire dinamica al pezzo.
 			dynamicFactor = 30 - (note.velocity/127)*29
-
-			#TODO AGGIUNGERE VOLUME E DINAMICA
-			audio = np.concatenate((audio[:offset], np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote / dynamicFactor), audio[offset + len(adjustedLengthNote):]))
-
+			
+			try:
+				audio = np.concatenate((audio[:offset], np.add(audio[offset:min(offset + len(adjustedLengthNote), len(audio))], adjustedLengthNote / dynamicFactor), audio[offset + len(adjustedLengthNote):]))
+			except:
+				print("bug at message %s\n"%msg)
+				continue
 
 		currentLoading = countTicks/midi.totalTicks*100
 		if (currentLoading) - loading > 10:

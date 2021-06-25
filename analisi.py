@@ -3,7 +3,7 @@ import pydub
 from functions import MidiInterface
 import sys
 
-song = "evangelion"
+song = "rick_e_morty"
 trackNumber = ""
 if len(sys.argv) > 1:
 	trackNumber = sys.argv[1]

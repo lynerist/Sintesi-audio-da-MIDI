@@ -1,7 +1,7 @@
 import mido
 import os
 
-song = "skyrim"
+song = "rick_e_morty"
 
 midi = mido.MidiFile(f"midi/{song}.mid", clip=True)
 print("Midi file:\n", midi, "\n")
