@@ -1,21 +1,20 @@
 import mido
-import pydub
 from functions import MidiInterface
 import sys
 
-song = "rick_e_morty"
+song = "evangelion"
 trackNumber = ""
 if len(sys.argv) > 1:
 	trackNumber = sys.argv[1]
 
 midi = MidiInterface(mido.MidiFile("midi/%s.mid"%song, clip=True))
 
-print("Midi file:\n", midi, "\n")
+print(f"Midi file:\n {midi.midi.filename}, \n")
 print(f"Length {midi.length}") #questa è sbagliata
 
 print("Tracks:")
 for track in midi.midi.tracks:
-	print(track)
+	print(f"{track.name}, {len(track)}")
 print()
 
 
