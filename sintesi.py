@@ -2,8 +2,8 @@ import mido
 from functions import *
 import soundfile as sf
 
-song 		= "rick_e_morty"
-instrument 	= "harpsichord"
+song 		= "skyrim"
+instrument 	= "violin"
 
 try:
 	instrument = Instrument(instrument)
@@ -95,7 +95,7 @@ for index, track in enumerate(midi.tracks):
 			#np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote)
 			
 			# divido la nota per questo fattore per conferire dinamica al pezzo.
-			dynamicFactor = 30 - (note.velocity/127)*29
+			dynamicFactor = 25 - (note.velocity/127)*24
 			
 			try:
 				audio = np.concatenate((audio[:offset], np.add(audio[offset:min(offset + len(adjustedLengthNote), len(audio))], adjustedLengthNote / dynamicFactor), audio[offset + len(adjustedLengthNote):]))
@@ -111,6 +111,7 @@ for index, track in enumerate(midi.tracks):
 #Se non esiste creo la directory dove collezionare gli output
 if not os.path.exists("outputAudio"):
 	os.mkdir("outputAudio")
+print()
 
 audio = audio/2 #Prevent clipping
 
