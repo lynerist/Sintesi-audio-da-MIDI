@@ -2,7 +2,7 @@ import mido
 from functions import MidiInterface
 import sys
 
-song = "evangelion"
+song = "melodia_01"
 trackNumber = ""
 if len(sys.argv) > 1:
 	trackNumber = sys.argv[1]
