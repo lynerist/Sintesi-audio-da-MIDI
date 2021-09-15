@@ -132,8 +132,10 @@ def fadeOut(audio, fadeOutSamples = 500):
 	return np.concatenate((audio[:-fadeOutSamples], fadeOut))
 
 
-# if __name__ == "__main__":
-# 	a = np.array([0.2, 0.4, 0.5, 0.4, 0.2, 0])
-# 	b = np.array([0.5, 0.6, 0.9, 0.7, 0.5, 0.3, 0.1, 0])
 
-# 	print(crossfade(a, b, 4))
+def normalize(song, rms_level=0):
+    # linear rms level and scaling factor
+    r = 10**(rms_level / 10.0)
+    a = np.sqrt( (len(song) * r**2) / np.sum(song**2) )
+
+    return song * a

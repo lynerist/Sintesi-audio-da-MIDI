@@ -2,7 +2,7 @@ import mido
 from functions import *
 import soundfile as sf
 
-def synthesize(song, instrument, base = ""):
+def synthesize(song, instrument, base = "", emphasis = 0):
 
 	try:
 		instrument = Instrument(instrument)
@@ -10,18 +10,11 @@ def synthesize(song, instrument, base = ""):
 		print(e)
 		exit()
 
-	midi = MidiInterface(mido.MidiFile(f"midi/{song}.mid", clip=True))
+	midi = MidiInterface(mido.MidiFile(f"midi/{song}.mid"))
 	duration = midi.duration
-
-	#verifico se esiste una base:
-	if base != "":
-		audio = sf.read(f"basi/{base}")[0]
-		if audio.ndim > 1:
-			audio = np.asarray([r + l for [l, r] in audio])
-		audio = audio/2
-	else:
-		# genero un file audio vuoto lungo quanto il file midi (+1500 per non troncare alla fine)
-		audio = np.zeros(int((midi.length + 1) * FS), dtype=int) 
+	
+	# genero un file audio vuoto lungo quanto il file midi (+1500 per non troncare alla fine)
+	audio = np.zeros(int((midi.length + 1) * FS), dtype=int) 
 
 
 	# cache dove salvo le note già suonate per non ricercarle
@@ -94,14 +87,8 @@ def synthesize(song, instrument, base = ""):
 
 				offset = int(duration(note.startTime) * FS) 
 
-				#print(len(adjustedLengthNote), len(audio[offset:offset + len(adjustedLengthNote)]))
-
-				# Verificare se è giusto
-
-				#np.add(audio[offset:offset + len(adjustedLengthNote)], adjustedLengthNote)
-				
 				# divido la nota per questo fattore per conferire dinamica al pezzo.
-				dynamicFactor = 25 - (note.velocity/127)*24
+				dynamicFactor = 5 - (note.velocity/127)*4
 				
 				try:
 					audio = np.concatenate((audio[:offset], np.add(audio[offset:min(offset + len(adjustedLengthNote), len(audio))], adjustedLengthNote / dynamicFactor), audio[offset + len(adjustedLengthNote):]))
@@ -119,16 +106,48 @@ def synthesize(song, instrument, base = ""):
 		os.mkdir("outputAudio")
 	print()
 
-	#audio = audio/2 #Prevent clipping
+	#verifico se esiste una base:
+	if base != "":
+		base = sf.read(f"basi/{base}")[0]
+		
+		#la rendo mono
+		if base.ndim > 1: 
+			base = np.asarray([r + l for [l, r] in base])
+				
+		#adatto il volume allo strumento
+		#calcolo loundess rms(escludo sotto 70 dB) le porto a -20 dB
+		#al ^2,  media, r sqrt
+		#divido in finestre, elimino quelle con quasi silenzio
+		#unisco tutto di nuovo e calcolo rms 
+		#rendo mono la base
+		
+		base = normalize(base, -20)
+		audio = normalize(audio, [-20, -15, -10][emphasis])
+
+		#per evitare out of range rendo l'audio finale il più lungo dei due
+		if len(base) > len(audio): 
+			audio, base = base, audio
+		for i, c in enumerate(base):
+			audio[i] += c
 
 	sf.write(f"outputAudio/{song}-{instrument.name}.wav",audio, FS)
 
 
 if __name__ == "__main__":
 
-	song 		= "melodia_01"
-	instrument 	= "saw"
-	base 		= "base_01.wav"
+	song 		= "melodia_06"
+	instrument 	= "piano"
+	base 		= "base_06.wav"
+	emphasis	=  0 # 0 / 1 / 2
 
-	#frenchhorn-panflute-harpsichord-trumpet-violin
-	synthesize(song, instrument, base)
+	#frenchhorn-panflute-harpsichord-trumpet-violin-saw
+
+	#stessa canzone a volumi diversi -20 -15 -10
+
+	instruments = ["frenchhorn","harpsichord","panflute", "piano", "saw", "trumpet","violin"]
+
+	for instrument in instruments:
+		print(instrument, end="")
+		synthesize(song, instrument, base, emphasis)
+		print()
+

@@ -12,10 +12,10 @@ MS_150 = int(fs * 150) #campioni in 150ms
 MS_300 = int(fs * 300) #campioni in 300ms
 MS_500 = int(fs * 500) #campioni in 500ms
 
-MS_USED = MS_150
+MS_USED = MS_300
 
 
-instrumentName = "saw"
+instrumentName = "piano"
 outputPath = f"instruments/{instrumentName}"
 
 outputAudioPath = f"{outputPath}/audioTest"
