@@ -35,8 +35,6 @@ def adjustLength(note:np.array, durationDesired, loopable, endOfAttack, startOfR
 
 		startSecondHalfIndex =  halfNote + halfSamplesToTrim
 		
-		#print(minSampleEndStart, minSampleStartEnd)
-
 		return crossfade(note[:endFirstHalfIndex], note[startSecondHalfIndex:])
 	return note
 			
@@ -133,9 +131,19 @@ def fadeOut(audio, fadeOutSamples = 500):
 
 
 
-def normalize(song, rms_level=0):
-    # linear rms level and scaling factor
-    r = 10**(rms_level / 10.0)
-    a = np.sqrt( (len(song) * r**2) / np.sum(song**2) )
+def normalize(audio, rms_level=0, trimSilences = False):
+	# linear rms level and scaling factor
+	r = 10**(rms_level / 20.0)
 
-    return song * a
+	if trimSilences:
+		wLen = FS//4
+		trimmedSilences = np.empty(0)
+		for w in [audio[x:x+wLen] for x in [i*wLen for i in range(len(audio)//wLen)] if x + wLen < len(audio)]:
+			if 20 * np.log10(np.sqrt(np.mean(w**2))) > -70:
+				trimmedSilences = np.append(trimmedSilences, w)
+		a = r / np.sqrt(np.mean(trimmedSilences**2))
+		
+	else :
+		a = r / np.sqrt(np.mean(audio**2))
+
+	return audio * a
